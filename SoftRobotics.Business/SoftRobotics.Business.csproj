@@ -1,0 +1,19 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="AutoMapper" Version="12.0.1" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\SoftRobotics.DataAccess\SoftRobotics.DataAccess.csproj" />
+    <ProjectReference Include="..\SoftRobotics.Domain\SoftRobotics.Domain.csproj" />
+    <ProjectReference Include="..\SoftRobotics.Dto\SoftRobotics.Dto.csproj" />
+  </ItemGroup>
+
+</Project>
