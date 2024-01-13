@@ -81,14 +81,21 @@ namespace SoftRobotics.Business
         private bool IsWordInDatabase(string word)
         {
             var words = _context.RandomWords.Select(MapToDto).ToList();
-            foreach(var item in words)
+            if (string.IsNullOrEmpty(word))
             {
-                if(item.Word == word)
-                {
-                    return true;
-                }
+                return false;
             }
-            return false;
+            else
+            {
+                foreach (var item in words)
+                {
+                    if (item.Word == word)
+                    {
+                        return true;
+                    }
+                }
+                return false;
+            }
         }
         public RandomWordDto? GetById(int id)
         {
@@ -119,7 +126,8 @@ namespace SoftRobotics.Business
         {
             try
             {
-                //var word = _mapper.Map<RandomWord>(wordDto);
+                //var word = _mapper.Map<RandomWord>(wordDto); //Automapper ile sayfa numaralarının eksilmesi durumunda hata yaşanıyor.
+
                 var word = MapToEntity(wordDto);
                 _context.Remove(word);
                 _context.SaveChanges();
