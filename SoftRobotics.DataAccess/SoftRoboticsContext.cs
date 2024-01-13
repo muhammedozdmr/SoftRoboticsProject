@@ -11,7 +11,8 @@ namespace SoftRobotics.DataAccess
 {
     public class SoftRoboticsContext : DbContext
     {
-        private const string ConnectionString = "Server = localhost; Database =  SoftRoboticsDb; User Id='.'; Password=''; Integrated Security = true;";
+        //private const string ConnectionString = "Server = localhost; Database =  SoftRoboticsDb; User Id='.'; Password=''; Integrated Security = true;"
+        private const string ConnectionString = "Server=localhost;Database=dbsoftrobotics;User Id=id; Password=password; Integrated Security=false; Trusted_Connection=false";
 
         public DbSet<RandomWord> RandomWords { get; set; }
 
