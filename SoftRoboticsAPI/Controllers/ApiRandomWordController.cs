@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using SoftRobotics.Business;
+using SoftRobotics.Dto;
 
 // For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
 
@@ -12,10 +14,32 @@ namespace SoftRoboticsAPI.Controllers
     [ApiController]
     public class ApiRandomWordController : Controller
     {
-        // GET: /<controller>/
+        private readonly RandomWordService _randomWordService = new RandomWordService();
+        // GET: /<controller
+        [HttpGet("Index")]
         public IActionResult Index()
         {
-            return View();
+            var randomWords = _randomWordService.GetAll();
+            return Ok(randomWords);
+        }
+        [HttpPost("Generate")]
+        public IActionResult Generate()
+        {
+            _randomWordService.GenerateWord();
+            return Ok();
+        }
+        [HttpPost("Delete")]
+        public IActionResult Delete(RandomWordDto model)
+        {
+            var commandResult = _randomWordService.Delete(model);
+            if (commandResult.IsSuccess)
+            {
+                return Ok(commandResult);
+            }
+            else
+            {
+                return NotFound(commandResult);
+            }
         }
     }
 }

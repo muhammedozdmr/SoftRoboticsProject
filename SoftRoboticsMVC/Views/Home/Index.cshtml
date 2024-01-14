@@ -32,14 +32,14 @@
                 </tr>
             </thead>
             <tbody>
-                @foreach(var word in Model)
+                @foreach (var word in Model)
                 {
                     <tr>
                         <td>@word.Id</td>
                         <td>@word.Word</td>
                         <td>@word.CountWord</td>
                         <td class="text-end">
-                            <form asp-action="Delete" class="delete-form d-inline-block">
+                            <form asp-action="DeleteWord" method="post" class="delete-form d-inline-block">
                                 <input type="hidden" value="@word.Id" name="id">
                                 <button class="btn btn-outline-warning btn-sm">Sil</button>
                             </form>
@@ -49,11 +49,13 @@
             </tbody>
         </table>
     </div>
-    @Html.PagedListPager(Model, pageNumber => Url.Action("Index", new { pageNumber }))
+    @Html.PagedListPager(Model, pageNumber => Url.Action("Index", new { pageNumber }), new X.PagedList.Web.Common.PagedListRenderOptions
+{
+    LiElementClasses = new List<string> { "page-link"}
+})
 </div>
 @section Scripts {
-    <script>
-        let deleteForms = document.getElementsByClassName('delete-form');
+    <script>let deleteForms = document.getElementsByClassName('delete-form');
         for (let i = 0; i < deleteForms.length; i++) {
             deleteForms[i].addEventListener('submit', function (e) {
                 let isConfirmed = confirm('Dikkat !! Bu kelime silinecek. Devam etmek istiyor musunuz ?');
@@ -61,6 +63,12 @@
                     e.preventDefault();
                 }
             });
-        }
-    </script>
+        }</script>
+    <script>function refresh() {
+            setTimeout(function (){
+                location.reload();
+            }, 32000);
+    console.log("Yenilendi");
+    window.onload = refresh;
+        }</script>
 }

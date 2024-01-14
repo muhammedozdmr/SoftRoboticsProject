@@ -9,7 +9,7 @@ namespace SoftRobotics.Dto
     public class RandomWordDto
     {
         public int Id { get; set; }
-        public string Word { get; set; }
-        public int CountWord { get; set; }
+        public string? Word { get; set; }
+        public int? CountWord { get; set; }
     }
 }

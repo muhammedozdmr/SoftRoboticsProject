@@ -9,7 +9,7 @@ namespace SoftRobotics.Domain
     public class RandomWord
     {
         public int Id {  get; set; }
-        public string Word { get; set; }
-        public int CountWord { get; set; }
+        public string? Word { get; set; }
+        public int? CountWord { get; set; }
     }
 }

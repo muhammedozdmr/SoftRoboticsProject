@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Runtime.CompilerServices;
+using SoftRoboticsAPI.Controllers;
 
 namespace SoftRoboticsWinService
 {
@@ -8,15 +9,17 @@ namespace SoftRoboticsWinService
         private readonly ILogger<Worker> _logger;
         private Timer _timer;
         private readonly SoftRobotics.Business.RandomWordService _randomWordService;
-        public Worker(ILogger<Worker> logger, SoftRobotics.Business.RandomWordService randomWordService)
+        private readonly ApiRandomWordController _apiRandom;
+        public Worker(ILogger<Worker> logger, SoftRobotics.Business.RandomWordService randomWordService,ApiRandomWordController apiRandomWord)
         {
             _logger = logger;
             _randomWordService = randomWordService;
+            _apiRandom = apiRandomWord;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            //30 saniyede bir çalýþacak
+            //30 saniyede bir Ã§alÄ±ÅŸacak
             _timer = new Timer(DoWork, null, TimeSpan.Zero, TimeSpan.FromSeconds(30));
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -27,14 +30,15 @@ namespace SoftRoboticsWinService
         {
             try
             {
-                _randomWordService.GenerateWord();
+                //_randomWordService.GenerateWord();
+                _apiRandom.Generate();
 
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Çalýþma esnasýnda hata oluþtu !");
+                _logger.LogError(ex, "Ã§alÄ±ÅŸma esnasÄ±nda hata oluÅŸtu !");
             }
-            _logger.LogInformation("WinService çalýþýyor: {time}", DateTimeOffset.Now);
+            _logger.LogInformation("WinService Ã§alÄ±ÅŸÄ±yor: {time}", DateTimeOffset.Now);
         }
         public override async Task StopAsync(CancellationToken stoppingToken)
         {

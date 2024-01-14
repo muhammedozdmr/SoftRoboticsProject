@@ -1,3 +1,4 @@
+using SoftRoboticsAPI.Controllers;
 using SoftRoboticsWinService;
 
 IHost host = Host.CreateDefaultBuilder(args)
@@ -6,6 +7,7 @@ IHost host = Host.CreateDefaultBuilder(args)
     {
         services.AddHostedService<Worker>();
         services.AddSingleton<SoftRobotics.Business.RandomWordService>();
+        services.AddSingleton<ApiRandomWordController>();
     })
     .Build();
 
