@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using RabbitMQ.Client;
 using SoftRobotics.DataAccess;
 using SoftRobotics.Domain;
 using SoftRobotics.Dto;
@@ -15,6 +16,12 @@ namespace SoftRobotics.Business
     {
         private readonly SoftRoboticsContext _context;
         private readonly IMapper _mapper;
+        private IConnection _connection;
+        private string Url = $"amqp://guest:guest@localhost:5672";
+        private IModel channel => CreateChannel();
+        private const string EXCHANGE_NAME = "exchange_name";
+        private const string QUEUE_NAME = "softRobotics_rabbitQueue";
+
         public RandomWordService()
         {
             _context = new SoftRoboticsContext();
@@ -24,6 +31,15 @@ namespace SoftRobotics.Business
             _context = new SoftRoboticsContext();
             _mapper = mapper;
         }
+        private void DirectExchange()
+        {
+            byte[] data = Encoding.UTF8.GetBytes(Url);
+        }
+        private IModel CreateChannel()
+        {
+            throw new NotImplementedException();
+        }
+
 
         public void GenerateWord()
         {
@@ -45,7 +61,6 @@ namespace SoftRobotics.Business
                 {
                     i--;
                 }
-                
             }
         }
 
