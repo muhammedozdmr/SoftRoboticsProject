@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using RabbitMQ.Client;
 using SoftRobotics.Business;
 using SoftRobotics.Dto;
 
@@ -15,6 +16,15 @@ namespace SoftRoboticsAPI.Controllers
     public class ApiRandomWordController : Controller
     {
         private readonly RandomWordService _randomWordService = new RandomWordService();
+        private IConnection _connection;
+
+        [HttpGet("GetRabbit")]
+        public IActionResult Get()
+        {
+            _randomWordService.DirectExchange();
+            //_connection.Close();
+            return Ok();
+        }
         // GET: /<controller
         [HttpGet("Index")]
         public IActionResult Index()

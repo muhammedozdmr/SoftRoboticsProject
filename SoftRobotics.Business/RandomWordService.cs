@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Newtonsoft.Json;
 using RabbitMQ.Client;
 using SoftRobotics.DataAccess;
 using SoftRobotics.Domain;
@@ -31,19 +32,39 @@ namespace SoftRobotics.Business
             _context = new SoftRoboticsContext();
             _mapper = mapper;
         }
-        private void DirectExchange()
+        public void DirectExchange()
         {
-            byte[] data = Encoding.UTF8.GetBytes(Url);
+            var wordData = GetAll();
+            byte[] data = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(wordData));
+            channel.ExchangeDeclare(EXCHANGE_NAME, ExchangeType.Direct);
+            channel.QueueDeclare(QUEUE_NAME, durable: true, exclusive: false, autoDelete: false, arguments: null);
+            channel.QueueBind(QUEUE_NAME, EXCHANGE_NAME, QUEUE_NAME);
+            channel.BasicPublish(EXCHANGE_NAME,QUEUE_NAME,null,data);
         }
         private IModel CreateChannel()
         {
-            throw new NotImplementedException();
+            if(_connection == null)
+            {
+                _connection = GetConnection();
+                return _connection.CreateModel();
+            }
+            else
+            {
+                return _connection.CreateModel();
+            }
         }
-
+        private IConnection GetConnection()
+        {
+            ConnectionFactory factory = new ConnectionFactory()
+            {
+                Uri = new Uri(Url, UriKind.RelativeOrAbsolute)
+            };
+            return factory.CreateConnection();
+        }
 
         public void GenerateWord()
         {
-            for(int i = 0; i < 10; i++)
+            for (int i = 0; i < 10; i++)
             {
                 var word = GenerateRandomWord();
                 if (!IsWordInDatabase(word))
@@ -67,7 +88,7 @@ namespace SoftRobotics.Business
         private string GenerateRandomWord()
         {
             var random = new Random();
-            int lenght = random.Next(3,51);
+            int lenght = random.Next(3, 51);
             var word = new StringBuilder();
             char nextChar;
             if (random.Next(0, 2) == 0)
@@ -91,7 +112,7 @@ namespace SoftRobotics.Business
                 word.Append(nextChar);
             }
             return word.ToString();
-        }   
+        }
 
         private bool IsWordInDatabase(string word)
         {
