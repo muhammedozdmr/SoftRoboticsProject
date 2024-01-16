@@ -34,12 +34,8 @@ namespace SoftRobotics.Business
         }
         public void DirectExchange()
         {
-            List<RandomWordDto> randomWordDtos = new List<RandomWordDto>();
-            //var wordData = GetAll();
             var wordDto = GenerateRabbit();
-            randomWordDtos.Add(wordDto);
-            //byte[] data = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(wordData));
-            byte[] data = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(randomWordDtos));
+            byte[] data = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(wordDto));
             channel.ExchangeDeclare(EXCHANGE_NAME, ExchangeType.Direct);
             channel.QueueDeclare(QUEUE_NAME, durable: true, exclusive: false, autoDelete: false, arguments: null);
             channel.QueueBind(QUEUE_NAME, EXCHANGE_NAME, QUEUE_NAME);
@@ -66,23 +62,29 @@ namespace SoftRobotics.Business
             return factory.CreateConnection();
         }
 
-        public RandomWordDto? GenerateRabbit()
+        public List<RandomWordDto>? GenerateRabbit()
         {
             int attempt = 0;
+            List<RandomWordDto> randomWordDtos = new List<RandomWordDto>();
             while (attempt < 10)
             {
                 var word = GenerateRandomWord();
                 if (!IsWordInDatabase(word))
                 {
-                    return new RandomWordDto()
+                    var wordDto = new RandomWordDto()
                     {
                         Word = word,
                         CountWord = word.Length
                     };
+                    randomWordDtos.Add(wordDto);
+                }
+                else
+                {
+                    continue;
                 }
                 attempt++;
             }
-            return null;
+            return randomWordDtos;
         }
 
         public void GenerateWord()

@@ -3,6 +3,7 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SoftRobotics.DataAccess;
 
@@ -11,9 +12,10 @@ using SoftRobotics.DataAccess;
 namespace SoftRobotics.DataAccess.Migrations
 {
     [DbContext(typeof(SoftRoboticsContext))]
-    partial class SoftRoboticsContextModelSnapshot : ModelSnapshot
+    [Migration("20240116095239_LastMigrate")]
+    partial class LastMigrate
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

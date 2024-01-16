@@ -21,8 +21,11 @@ namespace SoftRoboticsAPI.Controllers
         [HttpGet("GetRabbit")]
         public IActionResult Get()
         {
-            //_randomWordService.DirectExchange();
-            _randomWordService.GenerateRabbit();
+            //if (_connection == null)
+            //{
+            //    return StatusCode(StatusCodes.Status500InternalServerError, "Connection is not established.");
+            //}
+            _randomWordService.DirectExchange();
             //_connection.Close();
             return Ok();
         }
