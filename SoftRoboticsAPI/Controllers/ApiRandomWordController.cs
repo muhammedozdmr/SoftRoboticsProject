@@ -21,7 +21,8 @@ namespace SoftRoboticsAPI.Controllers
         [HttpGet("GetRabbit")]
         public IActionResult Get()
         {
-            _randomWordService.DirectExchange();
+            //_randomWordService.DirectExchange();
+            _randomWordService.GenerateRabbit();
             //_connection.Close();
             return Ok();
         }

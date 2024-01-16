@@ -34,16 +34,20 @@ namespace SoftRobotics.Business
         }
         public void DirectExchange()
         {
-            var wordData = GetAll();
-            byte[] data = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(wordData));
+            List<RandomWordDto> randomWordDtos = new List<RandomWordDto>();
+            //var wordData = GetAll();
+            var wordDto = GenerateRabbit();
+            randomWordDtos.Add(wordDto);
+            //byte[] data = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(wordData));
+            byte[] data = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(randomWordDtos));
             channel.ExchangeDeclare(EXCHANGE_NAME, ExchangeType.Direct);
             channel.QueueDeclare(QUEUE_NAME, durable: true, exclusive: false, autoDelete: false, arguments: null);
             channel.QueueBind(QUEUE_NAME, EXCHANGE_NAME, QUEUE_NAME);
-            channel.BasicPublish(EXCHANGE_NAME,QUEUE_NAME,null,data);
+            channel.BasicPublish(EXCHANGE_NAME, QUEUE_NAME, null, data);
         }
         private IModel CreateChannel()
         {
-            if(_connection == null)
+            if (_connection == null)
             {
                 _connection = GetConnection();
                 return _connection.CreateModel();
@@ -60,6 +64,25 @@ namespace SoftRobotics.Business
                 Uri = new Uri(Url, UriKind.RelativeOrAbsolute)
             };
             return factory.CreateConnection();
+        }
+
+        public RandomWordDto? GenerateRabbit()
+        {
+            int attempt = 0;
+            while (attempt < 10)
+            {
+                var word = GenerateRandomWord();
+                if (!IsWordInDatabase(word))
+                {
+                    return new RandomWordDto()
+                    {
+                        Word = word,
+                        CountWord = word.Length
+                    };
+                }
+                attempt++;
+            }
+            return null;
         }
 
         public void GenerateWord()
