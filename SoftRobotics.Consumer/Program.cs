@@ -20,19 +20,27 @@ class Program
             EventingBasicConsumer consumer = new EventingBasicConsumer(channel);
             consumer.Received += (model, ea) =>
             {
-                var body = ea.Body.ToArray();
-                var message = Encoding.UTF8.GetString(body);
-                Console.WriteLine($"Mesaj: {message}");
-                var wordDtoList = JsonConvert.DeserializeObject<List<RandomWordDto>>(message);
-                foreach (var wordDto in wordDtoList)
+                try
                 {
-                    if (wordDto != null)
+                    var body = ea.Body.ToArray();
+                    var message = Encoding.UTF8.GetString(body);
+                    Console.WriteLine($"Mesaj: {message}");
+                    var wordDtoList = JsonConvert.DeserializeObject<List<RandomWordDto>>(message);
+                    foreach (var wordDto in wordDtoList)
                     {
-                        var wordModel = MapToEntity(wordDto);
-                        _context.RandomWords.Add(wordModel);
+                        if (wordDto != null)
+                        {
+                            var wordModel = MapToEntity(wordDto);
+                            _context.RandomWords.Add(wordModel);
+                        }
                     }
+                    _context.SaveChanges();
                 }
-                _context.SaveChanges();
+                catch (Exception ex)
+                {
+                    Console.WriteLine($"Hata: {ex.Message}");
+                }
+                
             };
             //Consume etme başlatıldı
             channel.BasicConsume(queue: _queueName, autoAck: true, consumer: consumer);

@@ -19,7 +19,7 @@ namespace SoftRoboticsAPI.Controllers
         private IConnection _connection;
 
         [HttpGet("GetRabbit")]
-        public IActionResult Get()
+        public IActionResult GetRabbit()
         {
             //if (_connection == null)
             //{

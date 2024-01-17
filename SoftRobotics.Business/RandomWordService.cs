@@ -32,6 +32,9 @@ namespace SoftRobotics.Business
             _context = new SoftRoboticsContext();
             _mapper = mapper;
         }
+
+
+        #region RabbitMQ WinServiceGenerate
         public void DirectExchange()
         {
             var wordDto = GenerateRabbit();
@@ -62,7 +65,7 @@ namespace SoftRobotics.Business
             return factory.CreateConnection();
         }
 
-        public List<RandomWordDto>? GenerateRabbit()
+        private List<RandomWordDto>? GenerateRabbit()
         {
             int attempt = 0;
             List<RandomWordDto> randomWordDtos = new List<RandomWordDto>();
@@ -86,7 +89,9 @@ namespace SoftRobotics.Business
             }
             return randomWordDtos;
         }
+        #endregion
 
+        #region MVC-API Services
         public void GenerateWord()
         {
             for (int i = 0; i < 10; i++)
@@ -205,6 +210,7 @@ namespace SoftRobotics.Business
         {
             return Delete(new RandomWordDto() { Id = id });
         }
+        #endregion
 
 
         private static RandomWord MapToEntity(RandomWordDto wordDto)

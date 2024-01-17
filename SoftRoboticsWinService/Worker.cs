@@ -31,7 +31,7 @@ namespace SoftRoboticsWinService
             try
             {
                 //_randomWordService.GenerateWord();
-                _apiRandom.Generate();
+                _apiRandom.GetRabbit();
 
             }
             catch (Exception ex)
