@@ -6,9 +6,8 @@ using System.Threading.Tasks;
 
 namespace SoftRobotics.Domain
 {
-    public class RandomWord : BaseEntity
+    public abstract class BaseEntity
     {
-        public string? Word { get; set; }
-        public int? CountWord { get; set; }
+        public int Id { get; set; }
     }
 }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace SoftRobotics.Dto
 {
-    public class RandomWordDto
+    public class RandomWordDto 
     {
         public int Id { get; set; }
         public string? Word { get; set; }

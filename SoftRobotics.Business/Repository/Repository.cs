@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
 using SoftRobotics.DataAccess;
@@ -11,33 +12,57 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SoftRobotics.Business
+namespace SoftRobotics.Business.Repository
 {
-    public class RandomWordService
+    public class Repository : IRepository<RandomWordDto>
     {
         private readonly SoftRoboticsContext _context;
         private readonly IMapper _mapper;
+        private readonly IUnitOfWork _unitOfWork;
+
         private IConnection _connection;
         private string Url = $"amqp://guest:guest@localhost:5672";
+        private SoftRoboticsContext context;
+
         private IModel channel => CreateChannel();
         private const string EXCHANGE_NAME = "exchange_name";
         private const string QUEUE_NAME = "softRobotics_rabbitQueue";
 
-        public RandomWordService()
+        public Repository()
         {
             _context = new SoftRoboticsContext();
         }
-        public RandomWordService(IMapper mapper)
+        public Repository(SoftRoboticsContext context, IMapper mapper, IUnitOfWork unitOfWork)
         {
-            _context = new SoftRoboticsContext();
+            _context = context;
             _mapper = mapper;
+            _unitOfWork = unitOfWork;
         }
 
+        public Repository(SoftRoboticsContext context)
+        {
+            this.context = context;
+        }
 
-        #region RabbitMQ WinServiceGenerate
+        public CommandResult Delete(RandomWordDto dto)
+        {
+            try
+            {
+                var word = MapToEntity(dto);
+                _context.Remove(word);
+                _context.SaveChanges();
+                return CommandResult.Success("Silme işlemi başarılı");
+            }
+            catch (Exception ex)
+            {
+                Trace.TraceError(ex.ToString());
+                return CommandResult.Error("Silme işlemi hatası !!", ex);
+            }
+        }
+
         public void DirectExchange()
         {
-            var wordDto = GenerateRabbit();
+            var wordDto = GenerateWordRabbit();
             byte[] data = Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(wordDto));
             channel.ExchangeDeclare(EXCHANGE_NAME, ExchangeType.Direct);
             channel.QueueDeclare(QUEUE_NAME, durable: true, exclusive: false, autoDelete: false, arguments: null);
@@ -64,8 +89,7 @@ namespace SoftRobotics.Business
             };
             return factory.CreateConnection();
         }
-
-        private List<RandomWordDto>? GenerateRabbit()
+        public IEnumerable<RandomWordDto> GenerateWordRabbit()
         {
             int attempt = 0;
             List<RandomWordDto> randomWordDtos = new List<RandomWordDto>();
@@ -89,9 +113,7 @@ namespace SoftRobotics.Business
             }
             return randomWordDtos;
         }
-        #endregion
-
-        #region MVC-API Services
+        
         public void GenerateWord()
         {
             for (int i = 0; i < 10; i++)
@@ -105,8 +127,7 @@ namespace SoftRobotics.Business
                         CountWord = word.Length
                     };
                     var wordModel = MapToEntity(wordDto);
-                    _context.RandomWords.Add(wordModel);
-                    _context.SaveChanges();
+                    _unitOfWork.Save();
                 }
                 else
                 {
@@ -114,7 +135,6 @@ namespace SoftRobotics.Business
                 }
             }
         }
-
         private string GenerateRandomWord()
         {
             var random = new Random();
@@ -146,7 +166,7 @@ namespace SoftRobotics.Business
 
         private bool IsWordInDatabase(string word)
         {
-            var words = _context.RandomWords.Select(MapToDto).ToList();
+            var words = _context.RandomWords.ToList();
             if (string.IsNullOrEmpty(word))
             {
                 return false;
@@ -163,24 +183,13 @@ namespace SoftRobotics.Business
                 return false;
             }
         }
-        public RandomWordDto? GetById(int id)
+
+        public IEnumerable<RandomWordDto> GetAll()
         {
             try
             {
-                var wordsDto = _context.RandomWords.Select(MapToDto).FirstOrDefault(word => word.Id == id);
-                return wordsDto;
-            }
-            catch (Exception ex)
-            {
-                Trace.TraceError(ex.ToString());
-                return null;
-            }
-        }
-        public IEnumerable<RandomWordDto> GetAll()
-        { 
-            try
-            {
-                return _context.RandomWords.Select(MapToDto).ToList();
+                var entities = _context.RandomWords.ToList();
+                return _mapper.Map<List<RandomWordDto>>(entities);
             }
             catch (Exception ex)
             {
@@ -188,29 +197,6 @@ namespace SoftRobotics.Business
                 return new List<RandomWordDto>();
             }
         }
-        public CommandResult Delete(RandomWordDto wordDto)
-        {
-            try
-            {
-                //var word = _mapper.Map<RandomWord>(wordDto); //Automapper ile sayfa numaralarının eksilmesi durumunda hata yaşanıyor.
-
-                var word = MapToEntity(wordDto);
-                _context.Remove(word);
-                _context.SaveChanges();
-                return CommandResult.Success("Silme işlemi başarılı");
-            }
-            catch (Exception ex)
-            {
-                Trace.TraceError(ex.ToString());
-                return CommandResult.Error("Silme işlemi hatası !!", ex);
-            }
-        }
-        public CommandResult Delete(int id)
-        {
-            return Delete(new RandomWordDto() { Id = id });
-        }
-        #endregion
-
 
         private static RandomWord MapToEntity(RandomWordDto wordDto)
         {
@@ -226,7 +212,7 @@ namespace SoftRobotics.Business
             }
             return entity;
         }
-        private RandomWordDto MapToDto(RandomWord word)
+        private RandomWordDto MapToDto(RandomWordDto word)
         {
             RandomWordDto dto = null;
             if (word != null)
@@ -240,5 +226,6 @@ namespace SoftRobotics.Business
             }
             return dto;
         }
+
     }
 }

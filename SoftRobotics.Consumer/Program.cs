@@ -10,6 +10,7 @@ class Program
 {
     private static string _queueName = "softRobotics_rabbitQueue";
     private static readonly SoftRoboticsContext _context = new SoftRoboticsContext();
+    
     static void Main(string[] args)
     {
         var factory = new ConnectionFactory { HostName = "127.0.0.1", Port = 5672, UserName = "guest", Password = "guest" };
